@@ -84,10 +84,10 @@ And that is exactly the first thing that you will do!
 
 <!-------------------------- Start your work below ---------------------------->
 
-1: CHOICE_1\_HERE\
-2: CHOICE_2\_HERE\
-3: CHOICE_3\_HERE\
-4: CHOICE_4\_HERE
+1: cancer_sample
+2: vancouver_trees
+3: steam_games
+4: parking_meters
 
 <!----------------------------------------------------------------------------->
 
@@ -97,9 +97,91 @@ And that is exactly the first thing that you will do!
 
 <!-------------------------- Start your work below ---------------------------->
 
+Exploring data set *"cancer_sample"*
 ```{r}
-### EXPLORE HERE ###
-steam_games
+#previewing the data set 
+head(cancer_sample)
+```
+
+```{r}
+#exploring dimensions and variables
+glimpse(cancer_sample)
+```
+
+```{r}
+#determining class
+class(cancer_sample)
+```
+
+```{r}
+#exploring classes of each variable
+summary(cancer_sample)
+```
+
+
+Exploring data set *"vancouver_trees"*
+```{r}
+#previewing the data set 
+head(vancouver_trees)
+```
+
+```{r}
+#exploring dimensions and variables
+glimpse(vancouver_trees)
+```
+
+```{r}
+#determining class
+class(vancouver_trees)
+```
+
+```{r}
+#exploring classes of each variable
+summary(vancouver_trees)
+```
+
+
+Exploring data set *"steam_games"*
+```{r}
+#previewing the data set 
+head(steam_games)
+```
+
+```{r}
+#exploring dimensions and variables
+glimpse(steam_games)
+```
+
+```{r}
+#determining class
+class(steam_games)
+```
+
+```{r}
+#exploring classes of each variable
+summary(steam_games)
+```
+
+
+Exploring data set *"parking_meters"*
+```{r}
+#previewing the data set 
+head(parking_meters)
+```
+
+```{r}
+#exploring dimensions and variables
+glimpse(parking_meters)
+```
+
+```{r}
+#determining class
+class(parking_meters)
+```
+
+```{r}
+#exploring classes of each variable
+summary(parking_meters)
 ```
 
 <!----------------------------------------------------------------------------->
