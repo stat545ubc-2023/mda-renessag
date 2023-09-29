@@ -97,92 +97,113 @@ And that is exactly the first thing that you will do!
 
 <!-------------------------- Start your work below ---------------------------->
 
-Exploring data set *"cancer_sample"*
-```{r}
-#previewing the data set 
-head(cancer_sample)
-```
+#Exploring dimensions of each dataset
 
+The *cancer_sample* dataset has 569 rows and 32 columns.
 ```{r}
-#exploring dimensions and variables
+#summarizing dimensions and variables of cancer_sample
 glimpse(cancer_sample)
 ```
 
+The *vancouver_trees* dataset has 146,611 rows and 20 columns.
 ```{r}
-#determining class
-class(cancer_sample)
-```
-
-```{r}
-#exploring classes of each variable
-summary(cancer_sample)
-```
-
-
-Exploring data set *"vancouver_trees"*
-```{r}
-#previewing the data set 
-head(vancouver_trees)
-```
-
-```{r}
-#exploring dimensions and variables
+#summarizing dimensions and variables of vancouver_trees
 glimpse(vancouver_trees)
 ```
 
+The *steam_games* dataset has 40,833 rows and 21 columns.
 ```{r}
-#determining class
-class(vancouver_trees)
-```
-
-```{r}
-#exploring classes of each variable
-summary(vancouver_trees)
-```
-
-
-Exploring data set *"steam_games"*
-```{r}
-#previewing the data set 
-head(steam_games)
-```
-
-```{r}
-#exploring dimensions and variables
+#summarizing dimensions and variables of steam_games
 glimpse(steam_games)
 ```
 
+The *parking_meters* dataset has 10,032 rows and 22 columns. 
 ```{r}
-#determining class
-class(steam_games)
-```
-
-```{r}
-#exploring classes of each variable
-summary(steam_games)
-```
-
-
-Exploring data set *"parking_meters"*
-```{r}
-#previewing the data set 
-head(parking_meters)
-```
-
-```{r}
-#exploring dimensions and variables
+#summarizing dimensions and variables of parking_meters
 glimpse(parking_meters)
 ```
 
+
+#Determining the class of each dataset
+
+The *cancer_sample* dataset is a subclass of tibble data frames.
+```{r}
+#determining class of cancer_sample
+class(cancer_sample)
+```
+
+The *vancouver_trees* dataset is classed as a tibble.
+```{r}
+#determining class of vancouver_trees
+class(vancouver_trees)
+```
+
+The *steam_games* dataset is a subclass of tibble data frames.
+```{r}
+#determining class of steam_games
+class(steam_games)
+```
+
+The *parking_meters* dataset is classed as a tibble.
 ```{r}
 #determining class
 class(parking_meters)
 ```
 
+
+#Exploring variables of each dataset
+
+The *cancer_sample* dataset consists almost entirely of numerical data with one column of character objects. There is no missing data in this data set.
+
+```{r}
+#defining class of each variable in cancer_sample
+summary(cancer_sample)
+```
+
+```{r}
+#previewing cancer_sample
+head(cancer_sample)
+```
+
+
+The *vancouver_trees* dataset is equal parts between character objects and numerical data. There also appears to be a lot of missing data in the _date_planted_, _longitude_ and _latitude_ columns, based on the summary() output.
+
+```{r}
+#defining class of each variable in vancouver_trees
+summary(vancouver_trees)
+```
+
+```{r}
+#previewing vancouver_trees
+head(vancouver_trees)
+```
+
+
+The *steam_games* dataset consists mostly of character objects and 4 columns of numerical data but seems difficult to parse through due to the length of some character entries. Additionally, there are several entries missing from _achievement_, _original_price_ and _discount_price_. 
+
+```{r}
+#defining class of each variable in steam_games
+summary(steam_games)
+```
+
+```{r}
+#previewing steam_games
+head(steam_games)
+```
+
+
+The *parking_meters* data only contains 2 columns of numerical data. While most of the data looks numerical in nature, most columns also include units and are defined in the character class. 
+
 ```{r}
 #exploring classes of each variable
 summary(parking_meters)
 ```
+
+```{r}
+#previewing parking_meters
+head(parking_meters)
+```
+
 
 <!----------------------------------------------------------------------------->
 
@@ -190,11 +211,17 @@ summary(parking_meters)
 
 <!-------------------------- Start your work below ---------------------------->
 
+#Dataset Selection
+The dataset I am choosing to analyze is "cancer_sample". Based on my preliminary exploration of the dataset dimensions, class and organization, I believe the cancer_sample dataset will be the most straightforward to wrangle and interpret. The other datasets I considered comprised of (1) mostly discrete, categorical data, (2) lengthy, qualitative entries or (3) incomplete entries. These attributes may make relationships between variables harder to parse.    
+
 <!----------------------------------------------------------------------------->
 
 1.4 **(2 points)** Time for a  final decision! Going back to the beginning, it's important to have an *end goal* in mind. For example, if I had chosen the `titanic` dataset for my project, I might've wanted to explore the relationship between survival and other variables. Try to think of 1 research question that you would want to answer with your dataset. Note it down below.
 
 <!-------------------------- Start your work below ---------------------------->
+
+#Research Question
+Is there a relationship between the _diagnosis_ (malignant vs. benign) and _physical attributes of the tumor_ e.g. radius, texture, perimeter, area, smoothness, compactness, concavity, symmetry?
 
 <!----------------------------------------------------------------------------->
 
@@ -212,14 +239,14 @@ If we rewind and go back to the learning objectives, you'll see that by the end 
 
 Make sure that you're using dplyr and ggplot2 rather than base R for this task. Outside of this project, you may find that you prefer using base R functions for certain tasks, and that's just fine! But part of this project is for you to practice the tools we learned in class, which is dplyr and ggplot2.
 
-1.  Plot the distribution of a numeric variable.
+1.  !Plot the distribution of a numeric variable.
 2.  Create a new variable based on other variables in your data (only if it makes sense)
 3.  Investigate how many missing values there are per variable. Can you find a way to plot this?
-4.  Explore the relationship between 2 variables in a plot.
-5.  Filter observations in your data according to your own criteria. Think of what you'd like to explore - again, if this was the `titanic` dataset, I may want to narrow my search down to passengers born in a particular year...
-6.  Use a boxplot to look at the frequency of different observations within a single variable. You can do this for more than one variable if you wish!
-7.  Make a new tibble with a subset of your data, with variables and observations that you are interested in exploring.
-8.  Use a density plot to explore any of your variables (that are suitable for this type of plot).
+4.  !Explore the relationship between 2 variables in a plot.
+5.  !Filter observations in your data according to your own criteria. Think of what you'd like to explore - again, if this was the `titanic` dataset, I may want to narrow my search down to passengers born in a particular year...
+6.  !Use a boxplot to look at the frequency of different observations within a single variable. You can do this for more than one variable if you wish!
+7.  !Make a new tibble with a subset of your data, with variables and observations that you are interested in exploring.
+8.  !Use a density plot to explore any of your variables (that are suitable for this type of plot).
 
 2.2 **(4 points)** For each of the 4 exercises that you complete, provide a *brief explanation* of why you chose that exercise in relation to your data (in other words, why does it make sense to do that?), and sufficient comments for a reader to understand your reasoning and code.
 
