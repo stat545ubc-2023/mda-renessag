@@ -19,7 +19,14 @@ And hopefully the first of many. Let's get started:
 ```{r}
 library(datateachr)
 library(tidyverse)
+library(dplyr)
+library(gridExtra)
+library(grid)
+library(ggExtra)
+library(egg)
+library(ggpubr)
 ```
+
 
 3.  Make a repository in the <https://github.com/stat545ubc-2023> Organization. You can do this by following the steps found on canvas in the entry called [MDA: Create a repository](https://canvas.ubc.ca/courses/126199/pages/mda-create-a-repository). One completed, your repository should automatically be listed as part of the stat545ubc-2023 Organization.
 
@@ -221,7 +228,7 @@ The dataset I am choosing to analyze is "cancer_sample". Based on my preliminary
 <!-------------------------- Start your work below ---------------------------->
 
 #Research Question
-Is there a relationship between the _diagnosis_ (malignant vs. benign) and _physical attributes of the tumor_ e.g. radius, texture, perimeter, area, smoothness, compactness, concavity, symmetry?
+Is there a relationship between the _diagnosis_ (malignant vs. benign) and _physical attributes of the tumor_ e.g. radius, texture, perimeter, area, smoothness, compactness, concavity, symmetry, fractal dimensionality?
 
 <!----------------------------------------------------------------------------->
 
@@ -239,18 +246,329 @@ If we rewind and go back to the learning objectives, you'll see that by the end 
 
 Make sure that you're using dplyr and ggplot2 rather than base R for this task. Outside of this project, you may find that you prefer using base R functions for certain tasks, and that's just fine! But part of this project is for you to practice the tools we learned in class, which is dplyr and ggplot2.
 
-1.  !Plot the distribution of a numeric variable.
+1.  Plot the distribution of a numeric variable.
 2.  Create a new variable based on other variables in your data (only if it makes sense)
 3.  Investigate how many missing values there are per variable. Can you find a way to plot this?
-4.  !Explore the relationship between 2 variables in a plot.
-5.  !Filter observations in your data according to your own criteria. Think of what you'd like to explore - again, if this was the `titanic` dataset, I may want to narrow my search down to passengers born in a particular year...
-6.  !Use a boxplot to look at the frequency of different observations within a single variable. You can do this for more than one variable if you wish!
-7.  !Make a new tibble with a subset of your data, with variables and observations that you are interested in exploring.
-8.  !Use a density plot to explore any of your variables (that are suitable for this type of plot).
+4.  Explore the relationship between 2 variables in a plot.
+5.  Filter observations in your data according to your own criteria. Think of what you'd like to explore - again, if this was the `titanic` dataset, I may want to narrow my search down to passengers born in a particular year...
+6.  Use a boxplot to look at the frequency of different observations within a single variable. You can do this for more than one variable if you wish!
+7.  Make a new tibble with a subset of your data, with variables and observations that you are interested in exploring.
+8.  Use a density plot to explore any of your variables (that are suitable for this type of plot).
 
 2.2 **(4 points)** For each of the 4 exercises that you complete, provide a *brief explanation* of why you chose that exercise in relation to your data (in other words, why does it make sense to do that?), and sufficient comments for a reader to understand your reasoning and code.
 
 <!-------------------------- Start your work below ---------------------------->
+
+```{r}
+glimpse(cancer_sample)
+```
+
+#Exercise 4
+To explore the data, I decided to plot the distribution of each variable and group by diagnosis. This visually can summarize which attributes may differ between benign vs. malignant samples.
+
+```{r}
+#reduce point size, add title?
+radius_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = radius_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Radius") +
+  theme(legend.position = "none")
+
+texture_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = texture_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) + 
+    labs(x = "Diagnosis", y = "Texture") +
+    theme(legend.position = "none")
+
+perimeter_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = perimeter_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Perimeter") +
+  theme(legend.position = "none")
+
+area_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = area_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Area") +
+  theme(legend.position = "none")
+
+smoothness_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = smoothness_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Smoothness") +
+  theme(legend.position = "none")
+
+compactness_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = compactness_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Compactness") +
+  theme(legend.position = "none")
+
+concavity_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = concavity_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Concavity") +
+  theme(legend.position = "none")
+
+concave_points_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = concave_points_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Concave Points") +
+  theme(legend.position = "none")
+
+symmetry_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis, 
+                          y = symmetry_mean)) + 
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2, 
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Symmetry") +
+  theme(legend.position = "none")
+
+fractal_dim_plot <- ggplot(data = cancer_sample,
+                      aes(x = diagnosis,
+                          y = fractal_dimension_mean)) +
+  geom_jitter(aes(colour = diagnosis),
+              width = 0.2,
+              alpha = 0.2) +
+  labs(x = "Diagnosis", y = "Fractal Dimension") +
+  theme(legend.position = "none")
+
+ggarrange(radius_plot, texture_plot, perimeter_plot, area_plot, 
+         smoothness_plot, compactness_plot, concavity_plot, concave_points_plot, 
+         symmetry_plot, fractal_dim_plot)
+
+```
+
+#Exercise 2
+Due to the spread of data, some variables are harder to discern if there is a clear difference based on diagnosis. For this reason, I created a new tibble that summarizes the average numerical value of each attribute, grouped by diagnosis.
+
+```{r}
+cancer_sample %>%
+  group_by(diagnosis) %>%
+  summarize(avg_radius = mean(radius_mean),
+            avg_texture = mean(texture_mean),
+            avg_perimeter = mean(perimeter_mean),
+            avg_area = mean(area_mean), 
+            avg_smoothness = mean(smoothness_mean), 
+            avg_compactness = mean(compactness_mean), 
+            avg_concavity = mean(concavity_mean), 
+            avg_concave_points = mean(concave_points_mean), 
+            avg_symmetry = mean(symmetry_mean), 
+            avg_fractal_dimension = mean(fractal_dimension_mean))
+```
+
+#Exercise 8 
+To visualize the above table better, I generated boxplot graphs to summarize the difference of means based on diagnosis. 
+
+```{r}
+#reduce point size, change legend title and labels
+radius_plot <- ggplot(data = cancer_sample,
+                      aes(radius_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Radius", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+texture_plot <- ggplot(data = cancer_sample,
+                      aes(texture_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Texture", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+perimeter_plot <- ggplot(data = cancer_sample,
+                      aes(perimeter_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Perimeter", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+area_plot <- ggplot(data = cancer_sample,
+                      aes(area_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Area", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+smoothness_plot <- ggplot(data = cancer_sample,
+                      aes(smoothness_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Smoothness", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+compactness_plot <- ggplot(data = cancer_sample,
+                      aes(compactness_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Compactness", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+concavity_plot <- ggplot(data = cancer_sample,
+                      aes(concavity_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Concavity", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+concave_points_plot <- ggplot(data = cancer_sample,
+                      aes(concave_points_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Concave Points", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+symmetry_plot <- ggplot(data = cancer_sample,
+                      aes(symmetry_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Symmetry", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+fractal_dim_plot <- ggplot(data = cancer_sample,
+                      aes(fractal_dimension_mean, diagnosis)) + 
+  geom_boxplot(aes(group = diagnosis,
+                   fill = diagnosis),
+                   width = 0.5) +
+  labs(x = "Fractal Dimension", y = "Diagnosis") +
+  theme(legend.position = "none")
+
+ggarrange(radius_plot, texture_plot, perimeter_plot, 
+          area_plot, smoothness_plot, compactness_plot, 
+          concavity_plot, concave_points_plot, symmetry_plot, 
+          fractal_dim_plot, 
+          common.legend = TRUE, legend = "bottom")
+```
+
+
+#Exercise 6
+Additionally, I generated density plots to better represent the spread of data. Note that while the dot plot generated above also illustrates the spread of data, the overlapping of points obscures the density of data points at each value. The dot plot more clearly conveys the value and quantity of outliers, while the density plot will better illustrate the exact values the bulk of data lies within. 
+
+```{r}
+#change legend title and labels
+radius_plot <- ggplot(data = cancer_sample,
+                      aes(radius_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Radius", y = "Density") +
+  theme(legend.position = "none")
+
+texture_plot <- ggplot(data = cancer_sample,
+                      aes(texture_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Texture", y = "Density") +
+  theme(legend.position = "none")
+
+perimeter_plot <- ggplot(data = cancer_sample,
+                      aes(perimeter_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Perimeter", y = "Density") +
+  theme(legend.position = "none")
+
+area_plot <- ggplot(data = cancer_sample,
+                      aes(area_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Area", y = "Density") +
+  theme(legend.position = "none")
+
+smoothness_plot <- ggplot(data = cancer_sample,
+                      aes(smoothness_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Smoothness", y = "Density") +
+  theme(legend.position = "none")
+
+compactness_plot <- ggplot(data = cancer_sample,
+                      aes(smoothness_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Compactness", y = "Density") +
+  theme(legend.position = "none")
+
+concavity_plot <- ggplot(data = cancer_sample,
+                      aes(concavity_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Concavity", y = "Density") +
+  theme(legend.position = "none")
+
+concave_points_plot <- ggplot(data = cancer_sample,
+                      aes(concave_points_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Concave Points", y = "Density") +
+  theme(legend.position = "none")
+
+symmetry_plot <- ggplot(data = cancer_sample,
+                      aes(symmetry_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+              alpha = 0.5) +
+  labs(x = "Symmetry", y = "Density") +
+  theme(legend.position = "none")
+
+fractal_dim_plot <- ggplot(data = cancer_sample,
+                      aes(fractal_dimension_mean)) + 
+  geom_density(aes(group = diagnosis,
+                   fill = diagnosis),
+               alpha = 0.5) +
+  labs(x = "Fractal Dimension", y = "Density") +
+   theme(legend.position = "none")
+
+ggarrange(radius_plot, texture_plot, perimeter_plot, 
+          area_plot, smoothness_plot, compactness_plot, 
+          concavity_plot, concave_points_plot, symmetry_plot, 
+          fractal_dim_plot, 
+          nrow = 4, ncol = 3,
+          common.legend = TRUE, legend = "bottom")
+```
+
+
 
 <!----------------------------------------------------------------------------->
 
@@ -259,6 +577,38 @@ Make sure that you're using dplyr and ggplot2 rather than base R for this task. 
 **(4 points)** So far, you have chosen a dataset and gotten familiar with it through exploring the data. You have also brainstormed one research question that interested you (Task 1.4).  Now it's time to pick 4 research questions that you would like to explore in Milestone 2! Write the 4 questions and any additional comments below. 
 
 <!--- *****START HERE***** --->
+
+#Further Research Questions
+1. Which physical attribute is the strongest indicator of diagnosis?
+2. Is there a numerical range of this attribute that can define a benign vs. malignant tumor?
+3. Do samples with large margins of error (SE value) still align with the above ranges of benign vs. malignant?
+4. For discrete ranges of this attribute, what is the likelihood that the sample is benign vs. malignant?
+
+```{r}
+cancer_sample %>%
+  group_by(diagnosis) %>%
+  reframe(avg_radius = mean(radius_mean),
+            avg_texture = mean(texture_mean),
+            avg_perimeter = mean(perimeter_mean),
+            avg_area = mean(area_mean),
+            avg_smoothness = mean(smoothness_mean),
+            avg_compactness = mean(compactness_mean),
+            avg_concavity = mean(concavity_mean),
+            avg_concave_points = mean(concave_points_mean),
+            avg_symmetry = mean(symmetry_mean),
+            avg_fractal_dimension = mean(fractal_dimension_mean)) %>%
+summarize(diagnosis,
+          avg_radius = avg_radius/dplyr::first(avg_radius),
+          avg_texture = avg_texture/dplyr::first(avg_texture),
+          avg_perimeter = avg_perimeter/dplyr::first(avg_perimeter),
+          avg_area = avg_area/dplyr::first(avg_area),
+          avg_smoothness = avg_smoothness/dplyr::first(avg_smoothness),
+          avg_compactness = avg_compactness/dplyr::first(avg_compactness),
+          avg_concavity = avg_concavity/dplyr::first(avg_concavity),
+          avg_concave_points = avg_concave_points/dplyr::first(avg_concave_points),
+          avg_symmetry = avg_symmetry/dplyr::first(avg_symmetry),
+          avg_fractal_dimension = avg_fractal_dimension/dplyr::first(avg_fractal_dimension))
+```
 
 <!----------------------------->
 
