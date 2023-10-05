@@ -5,12 +5,12 @@ This repository contains the files and code authored by Renessa Gomes as submiss
 
 ### Files in the Repository  
 This repository contains the following files:  
-*`README.md` : introduction and guide to this repository  
-*`mini-project-1.Rmd` : milestone 1 assignment guidelines and completed analysis  
-*`mini-project-1.md` : knit output file and most up-to-date version of `mini-project-1.Rmd`
+* `README.md` : introduction and guide to this repository  
+* `mini-project-1.Rmd` : milestone 1 assignment guidelines and completed analysis  
+* `mini-project-1.md` : knit output file and most up-to-date version of `mini-project-1.Rmd`
 
 ### Running the Code  
 The following packages are required to run the code in `mini-project-1-Rmd` and may need to be installed:  
-*`datateachr` : contains the datasets for analysis  
-*`tidyverse` : contains `dplyr` for data wrangling and `ggplot2` for data visualization  
-*`ggpubr` : an extension of `ggplot2` that enables multi-plot layouts for data visualization
+* `datateachr` : contains the datasets for analysis  
+* `tidyverse` : contains `dplyr` for data wrangling and `ggplot2` for data visualization  
+* `ggpubr` : an extension of `ggplot2` that enables multi-plot layouts for data visualization
