@@ -1,6 +1,6 @@
 ---
 title: "Mini Data-Analysis Deliverable 1"
-output: html_document
+output: github_document
 editor_options: 
   markdown: 
     wrap: 72
@@ -144,10 +144,10 @@ understand your data.
 
 ## Selected data sets to explore
 
-1. cancer_sample   
-2. vancouver_trees   
-3. steam_games   
-4. parking_meters
+1. **cancer_sample**   
+2. **vancouver_trees**   
+3. **steam_games**   
+4. **parking_meters**
 
 <!----------------------------------------------------------------------------->
 
@@ -238,7 +238,7 @@ summary(cancer_sample)
 head(cancer_sample)
 ```
 
-The **vancouver_trees** dataset is equal parts between character objects and numerical data. There also appears to be a lot of missing data in the _date_planted_, _longitude_ and _latitude_ columns, based on the summary() output.
+The **vancouver_trees** dataset is equal parts between character objects and numerical data. There also appears to be a lot of missing data in the `date_planted`, `longitude` and `latitude` columns, based on the `summary()` output.
 
 ```{r}
 #defining class of each variable in vancouver_trees
@@ -250,7 +250,7 @@ summary(vancouver_trees)
 head(vancouver_trees)
 ```
 
-The **steam_games** dataset consists mostly of character objects and 4 columns of numerical data but seems difficult to parse through due to the length of some character entries. Additionally, there are several entries missing from _achievement_, _original_price_ and _discount_price_.
+The **steam_games** dataset consists mostly of character objects and 4 columns of numerical data but seems difficult to parse through due to the length of some character entries. Additionally, there are several entries missing from `achievement`, `original_price` and `discount_price`.
 
 ```{r}
 #defining class of each variable in steam_games
@@ -285,8 +285,8 @@ to choose this one? Briefly explain your choice below.
 ## Final Dataset Selection
 
 The dataset I am choosing to analyze is
-"cancer_sample". Based on my preliminary exploration of the dataset
-dimensions, class and organization, I believe the cancer_sample dataset
+"**cancer_sample**". Based on my preliminary exploration of the dataset
+dimensions, class and organization, I believe this dataset
 will be the most straightforward to wrangle and interpret. The other
 datasets I considered comprised of (1) mostly discrete, categorical
 data, (2) lengthy, qualitative entries or (3) incomplete entries. These
@@ -502,7 +502,7 @@ ggarrange(radius_plot, texture_plot, perimeter_plot, area_plot, #plots in first 
 ```
 
 #### Conclusion    
-At a glance, _radius_mean_, _texture_mean_, _perimeter_mean_ and _area_mean_ exhibit the strongest differential between diagnoses, with higher values in malignant samples. Other variables such as _compactness_mean_, _concavity_mean_ and _concave_points_mean_ illustrate a similar relationship with diagnosis, however exhibit larger spread of data. 
+At a glance, `radius_mean`, `texture_mean`, `perimeter_mean` and `area_mean` exhibit the strongest differential between diagnoses, with higher values in malignant samples. Other variables such as `compactness_mean`, `concavity_mean` and `concave_points_mean` illustrate a similar relationship with diagnosis, however exhibit larger spread of data. 
 
 
 
@@ -532,7 +532,7 @@ cancer_sample %>%
 ```
 
 #### Conclusion  
-The average value is higher for malignant samples in all variables except _fractal_dimension_mean_. 
+The average value is higher for malignant samples in all variables except `fractal_dimension_mean`. 
 
 
 ## Exercise 6  
@@ -652,7 +652,7 @@ ggarrange(radius_plot, texture_plot, perimeter_plot, #plots in first row
 ```
 
 #### Conclusion    
-The variables with the most discrete ranges of data are _radius_mean_, _texture_mean_, _perimeter_mean_, _area_mean_, _compactness_mean_, _concavity_mean_ and _concave_points_mean_. The averages and bulk of data are numerically similar between diagnoses for _smoothness_mean_, _symmetry_mean_ and _fractal_dimension_mean_.
+The variables with the most discrete ranges of data are `radius_mean`, `texture_mean`, `perimeter_mean`, `area_mean`, `compactness_mean`, `concavity_mean` and `concave_points_mean`. The averages and bulk of data are numerically similar between diagnoses for `smoothness_mean`, `symmetry_mean` and `fractal_dimension_mean`.
 
 
 ## Exercise 8  
@@ -767,14 +767,14 @@ ggarrange(radius_plot, texture_plot, perimeter_plot, #plots in first row
 ```
 
 #### Conclusion  
-Benign samples exhibit a relatively tight spread of data for all variables, while malignant samples have a much larger range of data for _radius_mean_, _perimeter_mean_, _area_mean_, _concavity_mean_ and  _concave_points_mean_. 
+Benign samples exhibit a relatively tight spread of data for all variables, while malignant samples have a much larger range of data for `radius_mean`, `perimeter_mean`, `area_mean`, `concavity_mean` and  `concave_points_mean`. 
 
 ### Summary   
-* Computed averages in **Exercise 2** suggest that all variables but _fractal_dimension_mean_ may have a relationship with the diagnosis, where higher values are associated with malignant samples.
-* **Exercise 4** illustrated the spread of data and supported stronger correlations between high _radius_mean_, _texture_mean_, _perimeter_mean_ and _area_mean_ values with malignant diagnosis.
-* When visualized as boxplots in **Exercise 6**, _radius_mean_, _texture_mean_, _perimeter_mean_, _area_mean_, _compactness_mean_, _concavity_mean_ and _concave_points_mean_ presented the most discrete data ranges between malignant and benign samples. 
-* Illustrating the spread of data in **Exercise 8** revealed very large spreads of data in malignant samples for _radius_mean_, _perimeter_mean_, _area_mean_, _concavity_mean_ and  _concave_points_mean_.
-* With all four exercises considered, _texture_mean_ and _compactness_mean_ appear to correlate high values with malignancy within tighter spreads of data. However, _radius_mean_, _perimeter_mean_, _area_mean_, _concavity_mean_ and _concave_points_mean_ also correlate high values with malignancy and exhibit a smaller numerical range of overlap between diagnoses. 
+* Computed averages in **Exercise 2** suggest that all variables but `fractal_dimension_mean` may have a relationship with the diagnosis, where higher values are associated with malignant samples.
+* **Exercise 4** illustrated the spread of data and supported stronger correlations between high `radius_mean`, `texture_mean`, `perimeter_mean` and `area_mean` values with malignant diagnosis.
+* When visualized as boxplots in **Exercise 6**, `radius_mean`, `texture_mean`, `perimeter_mean`, `area_mean`, `compactness_mean`, `concavity_mean` and `concave_points_mean` presented the most discrete data ranges between malignant and benign samples. 
+* Illustrating the spread of data in **Exercise 8** revealed very large spreads of data in malignant samples for `radius_mean`, `perimeter_mean`, `area_mean`, `concavity_mean` and  `concave_points_mean`.
+* With all four exercises considered, `texture_mean` and `compactness_mean` appear to correlate high values with malignancy within tighter spreads of data. However, `radius_mean`, `perimeter_mean`, `area_mean`, `concavity_mean` and `concave_points_mean` also correlate high values with malignancy and exhibit a smaller numerical range of overlap between diagnoses. 
 
 <!----------------------------------------------------------------------------->
 
@@ -789,7 +789,7 @@ Write the 4 questions and any additional comments below.
 <!--- *****START HERE***** --->
 
 ## Further Research Questions    
-In Task 2, I investigated the relationship between the **physical attributes** of cancer samples and **diagnosis**, within the dataset _cancer_samples_. In Task  3, I would like to explore these relationships further, evaluate their strength and determine the level of confidence they can predict malignancy. 
+In Task 2, I investigated the relationship between the **physical attributes** of cancer samples and **diagnosis**, within the dataset `cancer_samples`. In Task  3, I would like to explore these relationships further, evaluate their strength and determine the level of confidence they can predict malignancy. 
 
 1. Which physical attribute is the strongest
 indicator of diagnosis?   
