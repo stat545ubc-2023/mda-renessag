@@ -8,6 +8,7 @@ This repository contains the following files:
 * `README.md` : introduction and guide to this repository  
 * `mini-project-1.Rmd` : milestone 1 assignment guidelines and completed analysis  
 * `mini-project-1.md` : knit output file and most up-to-date version of `mini-project-1.Rmd`
+* `mini-project-1_files` : png files of graphs for GitHub view of `mini-project-1.md`
 
 ### Running the Code  
 The following packages are required to run the code in `mini-project-1-Rmd` and may need to be installed:  
