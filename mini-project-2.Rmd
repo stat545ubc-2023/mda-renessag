@@ -1,6 +1,6 @@
 ---
 title: "Mini Data Analysis Milestone 2"
-output: html_document
+output: github_document
 ---
 
 *To complete this milestone, you can either edit [this `.rmd` file](https://raw.githubusercontent.com/UBC-STAT/stat545.stat.ubc.ca/master/content/mini-project/mini-project-2.Rmd) directly. Fill in the sections that are commented out with `<!--- start your work here--->`. When you are done, make sure to knit to an `.md` file by changing the output in the YAML header to `github_document`, before submitting a tagged release on canvas.*
@@ -56,10 +56,11 @@ From milestone 1, you should have an idea of the basic structure of your dataset
 First, write out the 4 research questions you defined in milestone 1 were. This will guide your work through milestone 2:
 
 <!-------------------------- Start your work below ---------------------------->
-1. *FILL_THIS_IN*
-2. *FILL_THIS_IN*
-3. *FILL_THIS_IN*
-4. *FILL_THIS_IN*
+1. Which physical attribute (variable) is the strongest indicator of diagnosis? 
+2. Is there a numerical range of this attribute (variable) that can define a benign vs. malignant tumor? 
+3. Do samples with large margins of error (SE value) still align with the above ranges of benign
+vs. malignant?
+4. For discrete ranges of this attribute (variable), what is the likelihood that the sample is benign vs. malignant?
 <!----------------------------------------------------------------------------->
 
 Here, we will investigate your data using various data manipulation and graphing functions.
@@ -92,6 +93,73 @@ Using variables and/or tables you made in one of the "Summarizing" tasks:
 Make sure it's clear what research question you are doing each operation for!
 
 <!------------------------- Start your work below ----------------------------->
+
+# `cancer_sample` Data Set Analysis
+
+## Research Question 1  
+#### _Which variable is the strongest indicator of diagnosis?_
+
+### Exercise 1  
+_Compute the *range*, *mean*, and *two other summary statistics* of **one numerical variable** across the groups of **one categorical variable** from your data._
+
+#### Purpose  
+Group by B/M, re-calculate the means, normalize.
+
+```{r}
+
+```
+
+#### Conclusion  
+
+
+## Research Question 2  
+#### _Is there a numerical range of this variable that can define a benign vs. malignant tumor?_
+
+### Exercise 3  
+_Create a categorical variable with 3 or more groups from an existing numerical variable. You can use this new variable in the other tasks! *An example: age in years into "child, teen, adult, senior".*_
+
+#### Purpose 
+Use the range from Q1 to create evenly spaced intervals for the variable of interest. Define new categories (low, medium, high). 
+
+```{r}
+
+```
+
+#### Conclusion  
+
+
+
+## Research Question 3  
+#### _Do samples with large margins of error (SE value) still align with the above ranges of benign vs. malignant?_
+
+### Exercise 1  
+_Compute the *range*, *mean*, and *two other summary statistics* of **one numerical variable** across the groups of **one categorical variable** from your data._
+
+#### Purpose  
+Use range of the new categorical variables (low, medium, high). Use TRUE/FALSE logic to sort samples with high SE.
+
+```{r}
+
+```
+
+#### Conclusion  
+
+
+## Research Question 4  
+#### _For discrete ranges of this variable, what is the likelihood that the sample is benign vs. malignant?_
+
+### Exercise 4
+_Compute the proportion and counts in each category of one categorical variable across the groups of another categorical variable from your data. Do not use the function `table()`!_
+
+#### Purpose  
+Calculate proportion and counts of B and M in new categorical variable (low, medium, high). Determine percentage/likelihood of diagnosis in each categorical variable.  
+
+```{r}
+
+```
+
+#### Conclusion  
+
 
 <!----------------------------------------------------------------------------->
 
