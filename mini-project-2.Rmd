@@ -45,6 +45,9 @@ Begin by loading your data and the tidyverse package below:
 ```{r, message = FALSE}
 library(datateachr) # <- might contain the data you picked!
 library(tidyverse)
+library(ggpubr) #graphing multiple ggplot2 plots in the same figure
+library(rstatix) #includes function to identify outliers
+library(viridis) #remove
 ```
 
 # Task 1: Process and summarize your data 
@@ -106,11 +109,120 @@ _Compute the *range*, *mean*, and *two other summary statistics* of **one numeri
 Group by B/M, re-calculate the means, normalize.
 
 ```{r}
-
+fold_diff <- cancer_sample %>%
+  group_by(diagnosis) %>%
+  summarize_all(mean) %>%
+  summarize(diagnosis,
+            avg_radius = radius_mean/dplyr::first(radius_mean),
+            avg_texture = texture_mean/dplyr::first(texture_mean),
+            avg_perimeter = perimeter_mean/dplyr::first(perimeter_mean),
+            avg_area = area_mean/dplyr::first(area_mean),
+            avg_smoothness = smoothness_mean/dplyr::first(smoothness_mean),
+            avg_compactness = compactness_mean/dplyr::first(compactness_mean),
+            avg_concavity = concavity_mean/dplyr::first(concavity_mean),
+            avg_concave_points = concave_points_mean/dplyr::first(concave_points_mean),
+            avg_symmetry = symmetry_mean/dplyr::first(symmetry_mean),
+            avg_fractal_dimension = fractal_dimension_mean/dplyr::first(fractal_dimension_mean))
+print(fold_diff)
 ```
 
-#### Conclusion  
+```{r}
+fold_diff_transpose <- fold_diff %>%
+  pivot_longer(cols = -c(diagnosis),
+               names_to = "attribute",
+               values_to = "fold_diff") %>%
+  pivot_wider(id_cols = attribute,
+              names_from = diagnosis,
+              values_from = fold_diff) %>%
+  arrange(desc(M))
+print(fold_diff_transpose)
+```
 
+
+```{r}
+cancer_sample %>%
+  select(diagnosis, 
+         concavity = concavity_mean, 
+         concave.points = concave_points_mean, 
+         area = area_mean) %>%
+  group_by(diagnosis) %>%
+  summarize_all(list(avg = mean,
+                     stdev = sd,
+                     min = min,
+                     max = max,
+                     quantile1 = ~quantile(., probs = 0.25),
+                     quantile3 = ~quantile(., probs = 0.75),
+                     iqr = IQR)) %>%
+  pivot_longer(cols = !diagnosis,
+               names_to = c("attribute", ".value"),
+               names_sep = "_") %>%
+  arrange(factor(attribute, c("concavity", "concave.points", "area")))
+```
+
+### Exercise ?  
+
+#### Purpose  
+
+```{r}
+concavity_box <- ggplot(data = cancer_sample,
+                        aes(x = diagnosis,
+                            y = concavity_mean)) +
+  geom_boxplot(aes(fill = factor(diagnosis, c("M", "B"))),
+               alpha = 0.75,
+               width = 0.5,
+               outlier.size = 0.6) + 
+  stat_summary(fun.y = mean, 
+               aes(colour = "mean"),
+               geom = "point", 
+               shape = 4, 
+               size = 2.5) +
+  scale_colour_manual(values = c("mean" = "black")) +
+  labs(x = "Diagnosis",
+       y = "Concavity",
+       colour = "",
+       fill = "diagnosis") +
+  theme_light()
+
+concave_points_box <- ggplot(data = cancer_sample,
+                             aes(x = diagnosis,
+                                 y = concave_points_mean)) +
+  geom_boxplot(aes(fill = factor(diagnosis, c("M", "B"))),
+               alpha = 0.75,
+               width = 0.5,
+               outlier.size = 0.6) +
+  stat_summary(fun.y = mean, 
+               geom = "point", 
+               shape = 4, 
+               size = 2.5,
+               show.legend = TRUE) + 
+  labs(x = "Diagnosis",
+       y = "Concave Points") + 
+  theme_light()
+
+area_box <- ggplot(data = cancer_sample,
+                   aes(x = diagnosis,
+                       y = area_mean)) +
+  geom_boxplot(aes(fill = factor(diagnosis, c("M", "B"))),
+               alpha = 0.75,
+               width = 0.5,
+               outlier.size = 0.6) +
+  stat_summary(fun.y = mean, 
+               geom = "point", 
+               shape = 4, 
+               size = 2.5,
+               show.legend = TRUE) + 
+  labs(x = "Diagnosis",
+       y = "Area") +
+  theme_light()
+
+ggarrange(concavity_box, concave_points_box, area_box,
+          common.legend = TRUE, legend = "bottom",
+          ncol = 3, nrow = 1)
+```
+
+
+#### Conclusion  
+Concave points is the best marker.
 
 ## Research Question 2  
 #### _Is there a numerical range of this variable that can define a benign vs. malignant tumor?_
@@ -122,11 +234,32 @@ _Create a categorical variable with 3 or more groups from an existing numerical 
 Use the range from Q1 to create evenly spaced intervals for the variable of interest. Define new categories (low, medium, high). 
 
 ```{r}
+concave_points_analysis <- cancer_sample %>%
+  select(ID, diagnosis, concave_points_mean) %>%
+  mutate(concave_points_level = factor(case_when(concave_points_mean < 0.02 ~ "very low",
+                                                 concave_points_mean < 0.04 ~ "low",
+                                                 concave_points_mean < 0.06 ~ "moderate",
+                                                 concave_points_mean < 0.08 ~ "high",
+                                                 concave_points_mean >= 0.08 ~ "very high"),
+                                       levels = c("very low", "low", "moderate", "high", "very high")))
+print(concave_points_analysis)
+```
 
+```{r}
+ggplot(data = concave_points_analysis,
+       aes(x = concave_points_level)) +
+  geom_bar(aes(fill = concave_points_level)) +
+  scale_fill_viridis_d(option = "G",
+                       direction = -1) +
+  facet_wrap(~diagnosis) +
+  labs(x = "Concave Points Level",
+       y = "Count",
+       fill = "Concave Points Level") +
+  theme_light()
 ```
 
 #### Conclusion  
-
+Must graph first
 
 
 ## Research Question 3  
@@ -139,7 +272,51 @@ _Compute the *range*, *mean*, and *two other summary statistics* of **one numeri
 Use range of the new categorical variables (low, medium, high). Use TRUE/FALSE logic to sort samples with high SE.
 
 ```{r}
+cancer_sample %>%
+  group_by(diagnosis) %>%
+  summarize(avg = mean(concave_points_se),
+            stdev = sd(concave_points_se),
+            min = min(concave_points_se),
+            max = max(concave_points_se),
+            quantile1 = quantile(concave_points_se, probs = 0.25),
+            quantile3 = quantile(concave_points_se, probs = 0.75),
+            iqr = IQR(concave_points_se))
+```              
 
+```{r}
+outlier_analysis_concave_points <- cancer_sample %>%
+  select(ID, diagnosis, concave_points_mean) %>%
+  group_by(diagnosis) %>%
+  identify_outliers(concave_points_mean)
+print(outliers_concave_points)
+```
+
+```{r}
+concave_points_w_outliers <- outliers_concave_points %>%
+  right_join(cancer_sample, by = c("ID", "diagnosis", "concave_points_mean")) %>%
+  select(c(diagnosis:is.outlier), concave_points_se)
+print(concave_points_w_outliers)
+```
+
+
+```{r}
+ggplot(data = concave_points_w_outliers,
+       aes(x = concave_points_mean,
+           y = concave_points_se,
+           colour = factor(case_when(is.outlier == "TRUE" ~ "outlier",
+                                     concave_points_mean < 0.02 ~ "very low",
+                                     concave_points_mean < 0.04 ~ "low",
+                                     concave_points_mean < 0.06 ~ "moderate",
+                                     concave_points_mean < 0.08 ~ "high",
+                                     concave_points_mean >= 0.08 ~ "very high"),
+                           levels = c("very low", "low", "moderate", "high", "very high", "outlier")))) +
+  geom_point(alpha = 0.7) +
+  scale_colour_manual(values = c("#DEF5E5FF","#60CEACFF", "#3497A9FF", "#395D9CFF", "#382A54FF","#FF0000")) +
+  theme_light() +
+  facet_wrap(~diagnosis) +
+  labs(x = "Concave Points",
+       y = "Concave Points Standard Error",
+       colour = "Concave Points Level")
 ```
 
 #### Conclusion  
@@ -155,7 +332,35 @@ _Compute the proportion and counts in each category of one categorical variable 
 Calculate proportion and counts of B and M in new categorical variable (low, medium, high). Determine percentage/likelihood of diagnosis in each categorical variable.  
 
 ```{r}
+concave_points_analysis %>%
+  group_by(concave_points_level) %>%
+  summarize("B count" = length(which(diagnosis == "B")),
+            "M count" = length(which(diagnosis == "M")),
+            "%B" = length(which(diagnosis == "B"))/n(),
+            "%M" = length(which(diagnosis == "M"))/n())
+```
 
+```{r}
+concave_points_level_count <- ggplot(data = concave_points_analysis,
+                                    aes(x = concave_points_level)) +
+  geom_bar(aes(fill = factor(diagnosis, c("M", "B")))) +
+  labs(x = "Concave Points Level",
+       y = "Count",
+       fill = "Diagnosis") +
+  theme_light()
+
+concave_points_level_prop <- ggplot(data = concave_points_analysis,
+                                    aes(x = concave_points_level)) +
+  geom_bar(aes(fill = factor(diagnosis, c("M", "B"))),
+           position = "fill") +
+  labs(x = "Concave Points Level",
+       y = "Proportion",
+       fill = "Diagnosis") +
+  theme_light()
+
+ggarrange(concave_points_level_count, concave_points_level_prop,
+          nrow = 1, ncol = 2,
+          common.legend = TRUE, legend = "bottom")
 ```
 
 #### Conclusion  
