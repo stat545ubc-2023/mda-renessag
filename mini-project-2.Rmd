@@ -43,11 +43,11 @@ By the end of this milestone, you should:
 Begin by loading your data and the tidyverse package below:
 
 ```{r, message = FALSE}
-library(datateachr) # <- might contain the data you picked!
-library(tidyverse)
-library(ggpubr) #graphing multiple ggplot2 plots in the same figure
-library(rstatix) #includes function to identify outliers
-library(viridis) #remove
+library(datateachr) #contains data sets for analysis
+library(tidyverse) #contains packages for wrangling, visualizing, tidying, reading and writing data
+library(ggpubr) #includes `ggarrange()` function to graph multiple ggplot2 plots in the same figure
+library(rstatix) #includes `identify_outliers()` function to identify outliers
+library(here) #includes `here()` function to use relative paths to/from this project
 ```
 
 # Task 1: Process and summarize your data 
@@ -59,11 +59,15 @@ From milestone 1, you should have an idea of the basic structure of your dataset
 First, write out the 4 research questions you defined in milestone 1 were. This will guide your work through milestone 2:
 
 <!-------------------------- Start your work below ---------------------------->
-1. Which physical attribute (variable) is the strongest indicator of diagnosis? 
-2. Is there a numerical range of this attribute (variable) that can define a benign vs. malignant tumor? 
+#### Research questions defined in milestone 1
+
+1. Which variable is the strongest indicator of diagnosis?  
+2. Is there a numerical range of this variable that can define a benign vs. malignant sample?  
 3. Do samples with large margins of error (SE value) still align with the above ranges of benign
-vs. malignant?
-4. For discrete ranges of this attribute (variable), what is the likelihood that the sample is benign vs. malignant?
+vs. malignant?  
+4. For discrete ranges of this variable, what is the likelihood that the sample is benign vs. malignant?
+
+_**Note:** I have replaced the term "attribute" with "variable" to more accurately reflect the columns as numerical data._
 <!----------------------------------------------------------------------------->
 
 Here, we will investigate your data using various data manipulation and graphing functions.
@@ -97,52 +101,56 @@ Make sure it's clear what research question you are doing each operation for!
 
 <!------------------------- Start your work below ----------------------------->
 
-# `cancer_sample` Data Set Analysis
+# Task 1.2 `cancer_sample` Data Set Analysis
 
 ## Research Question 1  
 #### _Which variable is the strongest indicator of diagnosis?_
 
-### Exercise 1  
+### Summarizing Option 1  
 _Compute the *range*, *mean*, and *two other summary statistics* of **one numerical variable** across the groups of **one categorical variable** from your data._
 
 #### Purpose  
-Group by B/M, re-calculate the means, normalize.
+After selecting promising variables to consider, **Summarizing Option 1** will compare the statistics of these variables when grouped by diagnosis to help identify the strongest indicator of diagnosis. 
 
+The following table summarizes the fold-difference of the mean for each variable, between benign and malignant samples. 
 ```{r}
-fold_diff <- cancer_sample %>%
+task1.2_q1 <- cancer_sample %>%
   group_by(diagnosis) %>%
   summarize_all(mean) %>%
   summarize(diagnosis,
-            avg_radius = radius_mean/dplyr::first(radius_mean),
-            avg_texture = texture_mean/dplyr::first(texture_mean),
-            avg_perimeter = perimeter_mean/dplyr::first(perimeter_mean),
-            avg_area = area_mean/dplyr::first(area_mean),
-            avg_smoothness = smoothness_mean/dplyr::first(smoothness_mean),
+            avg_radius = radius_mean/dplyr::first(radius_mean), 
+            avg_texture = texture_mean/dplyr::first(texture_mean), 
+            avg_perimeter = perimeter_mean/dplyr::first(perimeter_mean), 
+            avg_area = area_mean/dplyr::first(area_mean), 
+            avg_smoothness = smoothness_mean/dplyr::first(smoothness_mean), 
             avg_compactness = compactness_mean/dplyr::first(compactness_mean),
             avg_concavity = concavity_mean/dplyr::first(concavity_mean),
             avg_concave_points = concave_points_mean/dplyr::first(concave_points_mean),
             avg_symmetry = symmetry_mean/dplyr::first(symmetry_mean),
             avg_fractal_dimension = fractal_dimension_mean/dplyr::first(fractal_dimension_mean))
-print(fold_diff)
+print(task1.2_q1)
 ```
 
+The following table is a transposed version of the above table, arranged from the largest to smallest fold-difference.
 ```{r}
-fold_diff_transpose <- fold_diff %>%
-  pivot_longer(cols = -c(diagnosis),
+task1.2_q1_transpose <- task1.2_q1 %>%
+  pivot_longer(cols = -c(diagnosis), #pivoting table longer to assign all variable names into a single column
                names_to = "attribute",
                values_to = "fold_diff") %>%
-  pivot_wider(id_cols = attribute,
+  pivot_wider(id_cols = attribute, #pivoting table wider to sort values into columns by diagnosis 
               names_from = diagnosis,
               values_from = fold_diff) %>%
-  arrange(desc(M))
-print(fold_diff_transpose)
+  arrange(desc(M)) #arranging from largest to smallest fold-difference
+
+print(task1.2_q1_transpose)
 ```
 
+The following table completes **Summarizing Option 1**, generating the _mean_, _standard deviation_, _minimum_, _maximum_, _quantile 1_, _quantile 3_ and _interquartile range_ for `concavity`, `concave points` and `area`.
 
 ```{r}
-cancer_sample %>%
+task1.2_q1_stats <- cancer_sample %>%
   select(diagnosis, 
-         concavity = concavity_mean, 
+         concavity = concavity_mean, #changing variable names so "_" separates the statistic from the variable name
          concave.points = concave_points_mean, 
          area = area_mean) %>%
   group_by(diagnosis) %>%
@@ -153,44 +161,50 @@ cancer_sample %>%
                      quantile1 = ~quantile(., probs = 0.25),
                      quantile3 = ~quantile(., probs = 0.75),
                      iqr = IQR)) %>%
-  pivot_longer(cols = !diagnosis,
+  pivot_longer(cols = !diagnosis, #pivoting table longer to assign all variable names into a single column
                names_to = c("attribute", ".value"),
                names_sep = "_") %>%
   arrange(factor(attribute, c("concavity", "concave.points", "area")))
+
+print(task1.2_q1_stats)
 ```
 
-### Exercise ?  
+### Graphing Option 7  
+_Make a graph where it makes sense to customize the alpha transparency._
 
 #### Purpose  
+The following graph visualizes the statistics summarized in the above tibble. Alpha transparency was used to make the mean point more visible on the box plot, particularly when overlayed on the median line.  
 
 ```{r}
-concavity_box <- ggplot(data = cancer_sample,
-                        aes(x = diagnosis,
-                            y = concavity_mean)) +
+#Storing boxplot of concavity_mean vs. diagnosis
+task1.2_q1_concavity_plot <- ggplot(data = cancer_sample,
+                                    aes(x = diagnosis,
+                                        y = concavity_mean)) +
   geom_boxplot(aes(fill = factor(diagnosis, c("M", "B"))),
-               alpha = 0.75,
+               alpha = 0.75, #use of alpha transparency
                width = 0.5,
                outlier.size = 0.6) + 
-  stat_summary(fun.y = mean, 
+  stat_summary(fun.y = mean, #plotting the mean 
                aes(colour = "mean"),
                geom = "point", 
                shape = 4, 
                size = 2.5) +
-  scale_colour_manual(values = c("mean" = "black")) +
+  scale_colour_manual(values = c("mean" = "black")) + #setting mean symbol colour to black
   labs(x = "Diagnosis",
        y = "Concavity",
        colour = "",
        fill = "diagnosis") +
   theme_light()
 
-concave_points_box <- ggplot(data = cancer_sample,
-                             aes(x = diagnosis,
-                                 y = concave_points_mean)) +
+#Storing boxplot of concave_points_mean vs. diagnosis
+task1.2_q1_cpoints_plot <- ggplot(data = cancer_sample,
+                                  aes(x = diagnosis,
+                                      y = concave_points_mean)) +
   geom_boxplot(aes(fill = factor(diagnosis, c("M", "B"))),
-               alpha = 0.75,
+               alpha = 0.75, #use of alpha transparency
                width = 0.5,
                outlier.size = 0.6) +
-  stat_summary(fun.y = mean, 
+  stat_summary(fun.y = mean, #plotting the mean
                geom = "point", 
                shape = 4, 
                size = 2.5,
@@ -199,14 +213,15 @@ concave_points_box <- ggplot(data = cancer_sample,
        y = "Concave Points") + 
   theme_light()
 
-area_box <- ggplot(data = cancer_sample,
-                   aes(x = diagnosis,
-                       y = area_mean)) +
+#Storing boxplot of area_mean vs. diagnosis
+task1.2_q1_area_plot <- ggplot(data = cancer_sample,
+                               aes(x = diagnosis,
+                                   y = area_mean)) +
   geom_boxplot(aes(fill = factor(diagnosis, c("M", "B"))),
-               alpha = 0.75,
+               alpha = 0.75, #use of alpha transparency
                width = 0.5,
                outlier.size = 0.6) +
-  stat_summary(fun.y = mean, 
+  stat_summary(fun.y = mean, #plotting the mean
                geom = "point", 
                shape = 4, 
                size = 2.5,
@@ -215,14 +230,15 @@ area_box <- ggplot(data = cancer_sample,
        y = "Area") +
   theme_light()
 
-ggarrange(concavity_box, concave_points_box, area_box,
+#Arranging stored boxplots into an array
+ggarrange(task1.2_q1_concavity_plot, task1.2_q1_cpoints_plot, task1.2_q1_area_plot, 
           common.legend = TRUE, legend = "bottom",
           ncol = 3, nrow = 1)
 ```
 
-
 #### Conclusion  
-Concave points is the best marker.
+* **Summarizing Option 1** revealed that `concavity_mean`, `concave_points_mean` and `area_mean` had the largest fold-differences in average between benign and malignant samples. The statistical summary of these variables illustrated that `concave_points_mean` had the most discrete range between diagnoses and lower standard deviations than the other variables.  
+* **Graphing Option 7** illstrated that `concave_points_mean` had the most discrete range of values between benign and malignant samples. The means were closest to the median in this variable versus the others, suggesting this variable has a less skewed distribution. These characteristics make `concave_points_mean` the most promising variable to pursue as an indicator of diagnosis in _Research Question 2_.
 
 ## Research Question 2  
 #### _Is there a numerical range of this variable that can define a benign vs. malignant tumor?_
@@ -234,7 +250,7 @@ _Create a categorical variable with 3 or more groups from an existing numerical 
 Use the range from Q1 to create evenly spaced intervals for the variable of interest. Define new categories (low, medium, high). 
 
 ```{r}
-concave_points_analysis <- cancer_sample %>%
+task1.2_q2 <- cancer_sample %>%
   select(ID, diagnosis, concave_points_mean) %>%
   mutate(concave_points_level = factor(case_when(concave_points_mean < 0.02 ~ "very low",
                                                  concave_points_mean < 0.04 ~ "low",
@@ -242,12 +258,12 @@ concave_points_analysis <- cancer_sample %>%
                                                  concave_points_mean < 0.08 ~ "high",
                                                  concave_points_mean >= 0.08 ~ "very high"),
                                        levels = c("very low", "low", "moderate", "high", "very high")))
-print(concave_points_analysis)
+print(task1.2_q2)
 ```
 
 ```{r}
-ggplot(data = concave_points_analysis,
-       aes(x = concave_points_level)) +
+task1.2_q2_plot <- ggplot(data = task1.2_q2,
+                          aes(x = concave_points_level)) +
   geom_bar(aes(fill = concave_points_level)) +
   scale_fill_viridis_d(option = "G",
                        direction = -1) +
@@ -256,6 +272,8 @@ ggplot(data = concave_points_analysis,
        y = "Count",
        fill = "Concave Points Level") +
   theme_light()
+
+print(task1.2_q2_plot)
 ```
 
 #### Conclusion  
@@ -272,7 +290,7 @@ _Compute the *range*, *mean*, and *two other summary statistics* of **one numeri
 Use range of the new categorical variables (low, medium, high). Use TRUE/FALSE logic to sort samples with high SE.
 
 ```{r}
-cancer_sample %>%
+task1.2_q3_cpoints_stats <- cancer_sample %>%
   group_by(diagnosis) %>%
   summarize(avg = mean(concave_points_se),
             stdev = sd(concave_points_se),
@@ -281,28 +299,31 @@ cancer_sample %>%
             quantile1 = quantile(concave_points_se, probs = 0.25),
             quantile3 = quantile(concave_points_se, probs = 0.75),
             iqr = IQR(concave_points_se))
+
+print(task1.2_q3_cpoints_stats)
 ```              
 
 ```{r}
-outlier_analysis_concave_points <- cancer_sample %>%
+task1.2_q3_cpoints_outliers <- cancer_sample %>%
   select(ID, diagnosis, concave_points_mean) %>%
   group_by(diagnosis) %>%
   identify_outliers(concave_points_mean)
-print(outliers_concave_points)
+
+print(task1.2_q3_cpoints_outliers)
 ```
 
 ```{r}
-concave_points_w_outliers <- outliers_concave_points %>%
+task1.2_q3_cpoints_summary <- task1.2_q3_cpoints_outliers %>%
   right_join(cancer_sample, by = c("ID", "diagnosis", "concave_points_mean")) %>%
   select(c(diagnosis:is.outlier), concave_points_se)
-print(concave_points_w_outliers)
+print(task1.2_q3_cpoints_summary)
 ```
 
 
 ```{r}
-ggplot(data = concave_points_w_outliers,
-       aes(x = concave_points_mean,
-           y = concave_points_se,
+task1.2_q3_plot <- ggplot(data = task1.2_q3_cpoints_summary,
+                          aes(x = concave_points_mean,
+                              y = concave_points_se,
            colour = factor(case_when(is.outlier == "TRUE" ~ "outlier",
                                      concave_points_mean < 0.02 ~ "very low",
                                      concave_points_mean < 0.04 ~ "low",
@@ -317,6 +338,8 @@ ggplot(data = concave_points_w_outliers,
   labs(x = "Concave Points",
        y = "Concave Points Standard Error",
        colour = "Concave Points Level")
+
+print(task1.2_q3_plot)
 ```
 
 #### Conclusion  
@@ -332,16 +355,18 @@ _Compute the proportion and counts in each category of one categorical variable 
 Calculate proportion and counts of B and M in new categorical variable (low, medium, high). Determine percentage/likelihood of diagnosis in each categorical variable.  
 
 ```{r}
-concave_points_analysis %>%
+task1.2_q4 <- task1.2_q2 %>%
   group_by(concave_points_level) %>%
   summarize("B count" = length(which(diagnosis == "B")),
             "M count" = length(which(diagnosis == "M")),
-            "%B" = length(which(diagnosis == "B"))/n(),
-            "%M" = length(which(diagnosis == "M"))/n())
+            "%B" = length(which(diagnosis == "B"))/n()*100,
+            "%M" = length(which(diagnosis == "M"))/n()*100) 
+
+print(task1.2_q4)
 ```
 
 ```{r}
-concave_points_level_count <- ggplot(data = concave_points_analysis,
+task1.2_q4_count_plot <- ggplot(data = task1.2_q2,
                                     aes(x = concave_points_level)) +
   geom_bar(aes(fill = factor(diagnosis, c("M", "B")))) +
   labs(x = "Concave Points Level",
@@ -349,7 +374,7 @@ concave_points_level_count <- ggplot(data = concave_points_analysis,
        fill = "Diagnosis") +
   theme_light()
 
-concave_points_level_prop <- ggplot(data = concave_points_analysis,
+task1.2_q4_prop_plot <- ggplot(data = task1.2_q2,
                                     aes(x = concave_points_level)) +
   geom_bar(aes(fill = factor(diagnosis, c("M", "B"))),
            position = "fill") +
@@ -358,7 +383,7 @@ concave_points_level_prop <- ggplot(data = concave_points_analysis,
        fill = "Diagnosis") +
   theme_light()
 
-ggarrange(concave_points_level_count, concave_points_level_prop,
+ggarrange(task1.2_q4_count_plot, task1.2_q4_prop_plot,
           nrow = 1, ncol = 2,
           common.legend = TRUE, legend = "bottom")
 ```
@@ -373,7 +398,37 @@ ggarrange(concave_points_level_count, concave_points_level_prop,
 Based on the operations that you've completed, how much closer are you to answering your research questions? Think about what aspects of your research questions remain unclear. Can your research questions be refined, now that you've investigated your data a bit more? Which research questions are yielding interesting results?
 
 <!------------------------- Write your answer here ---------------------------->
+**Given the following outlined research questions,**   
+1. Which variable is the strongest indicator of diagnosis?   
+2. Is there a numerical range of this variable that can define a benign vs. malignant sample?   
+3. Do samples with large margins of error (SE value) still align with the above ranges of benign
+vs. malignant?  
+4. For discrete ranges of this variable, what is the likelihood that the sample is benign vs. malignant?
 
+#### **How much closer are you to answering your research questions?**  
+I believe I am much closer to answering all the questions set forth by this exploratory data analysis.   * Exercises investigating **#1** revealed that `concave_points_mean` is a promising variable to distinguish between diagnoses.  
+* Exercises investigating **#2** illustrate that `concave_points_mean < 0.02` correspond exclusively with benign samples while `concave_points_mean > 0.08` almost completely corresponds with malignant samples.  
+* Exercises investigating **#3** demonstrate that outliers in the data grouped by diagnosis did not necessarily correspond to samples with high standard error values.  
+* Exercises investigating **#4** effectively determined the proportion of malignancy at each categorical range of `concave_points_mean`.
+
+**Think about what aspects of your research questions remain unclear.**
+There are multiple aspects to the first three research questions that can be further explored.  
+* For question **#1**, while quantifying the fold-difference between benign and malignant samples provided some numerical support in selecting a variable to study, more statistical evidence would be beneficial.
+* For question **#2**, there is a broad range of values, `concave_points_mean = 0.02 - 0.08`, where the sample can be either benign or malignant. It may be useful to see if other variables have a tighter range, or if multiple variables provide a more robust profile of a benign vs. malignant sample.
+* For question **#3**, the visualization revealed a potential relationship between `concave_points_mean` and `concave_points_se`, suggesting that high values have more error associated with their measurement. It would be useful to see if this trend is present in other variables, possibly nominating other variables as better markers of diagnosis. 
+* Question **#4** was effectively answered by calculating the proportion of benign vs. malignant samples within each categorical range of `concave_points_mean`.
+
+**Can your research questions be refined, now that you've investigated your data a bit more?**
+The questions I originally proposed can be further refined to the following,  
+1. Which variable _exhibits the strongest relationship_ with diagnosis?   
+2. Is there a _profile of one or more variables_ that can define a benign vs. malignant sample?   
+3. _Is the standard error for these variables consistent across all ranges of measurement? Do samples with high SE correlate with outliers of the data set?_  
+4. For discrete ranges of this variable, what is the likelihood that the sample is benign vs. malignant?
+
+**Which research questions are yielding interesting results?**
+From the original research questions, the following have yielded the most interesting results,  
+1. Which variable is the strongest indicator of diagnosis? 
+2. Is there a numerical range of this variable that can define a benign vs. malignant sample?
 
 <!----------------------------------------------------------------------------->
 
@@ -393,6 +448,18 @@ Based on the definition above, can you identify if your data is tidy or untidy? 
 
 <!--------------------------- Start your work below --------------------------->
 
+#### Determining if the `cancer_sample` data set is 'tidy'  
+The following is a preview of the `cancer_sample` data set:
+```{r}
+head(cancer_sample)
+```
+
+Based on the definition of 'tidy', I believe the `cancer_sample` data set is tidy. This data set indeed ascribes each row to an observation, each column to a variable and each cell to a value. 
+
+There are 10 variables (`radius`, `texture`, `perimeter`, `area`, `smoothness`, `compactness`, `concavity`, `concave points`, `symmetry` and `fractal dimension`), for which there are 3 sub-variables (`mean`, `standard error`, `worst`). These correspond to a total of 30 columns of numerical variables, and 1 categorical variable (`diagnosis`) to describe each observation labelled by `ID`.
+
+Tidiness also depends on the data analysis plan. For my data analysis plan, I would consider the current format of `cancer_sample` as tidy. 
+
 <!----------------------------------------------------------------------------->
 
 ### 2.2 (4 points)
@@ -404,6 +471,42 @@ If your data is untidy, then tidy it! Then, untidy it back to it's original stat
 Be sure to explain your reasoning for this task. Show us the "before" and "after".
 
 <!--------------------------- Start your work below --------------------------->
+#### Untidying and re-tidying the `cancer_sample` data set
+
+**Original 'tidy' state of `cancer_sample`**  
+The original data set separates the `mean`, `standard error` and `worst` sample values for each attribute into unique columns. This allows for easy comparison of the `mean`, `standard error` or `worst` values between attributes as they are contained in separated columns. 
+
+```{r}
+head(cancer_sample)
+```
+
+**'Untidy' version of `cancer_sample`**  
+The following is an _untidy_ version of the same `cancer_sample` data set. The 10 attributes of the sample (`radius`, `texture`, `perimeter`, `area`, `smoothness`, `compactness`, `concavity`, `concave points`, `symmetry` and `fractal dimension`) are now contained as a character variable `attribute`. Their associated values are contained in 3 columns (`mean`, `se` and `worst`). 
+
+This version of the data set no longer agrees with the definition of tidy. While each row is an observation, each column is not a variable and each cell is no longer a value. The `attribute` column contains cells that holds categorical variables instead of values and is not a variable itself. 
+
+```{r}
+task2.2_untidy <- cancer_sample %>%
+  rename_with(~sub("_(.*?_)", ".\\1", .x)) %>%
+  pivot_longer(cols = !c(ID, diagnosis),
+             names_to = c('attribute', '.value'),
+             names_sep = "_")
+
+print(task2.2_untidy)
+```
+
+**'Re-tidied' version of `cancer_sample`**  
+The following is a _re-tidied_ version of the _untidy_ state of the `cancer_sample` data set. This entailed extracting the column names back from the `attribute` column, retaining the values from `mean`, `se` and `worst`. Finally, I used the `names_glue` argument and `rename_with` function to restore the column names to their original state. 
+
+```{r}
+task2.2_retidy <- task2.2_untidy %>%
+  pivot_wider(names_from = attribute,
+              values_from = c(mean:worst),
+              names_glue = "{attribute}_{.value}") %>%
+  rename_with(~sub("\\.","_", .x))
+
+print(task2.2_retidy)
+```
 
 <!----------------------------------------------------------------------------->
 
@@ -412,15 +515,24 @@ Be sure to explain your reasoning for this task. Show us the "before" and "after
 Now, you should be more familiar with your data, and also have made progress in answering your research questions. Based on your interest, and your analyses, pick 2 of the 4 research questions to continue your analysis in the remaining tasks:
 
 <!-------------------------- Start your work below ---------------------------->
+#### Selection of research questions for further analysis  
 
-1.  *FILL_THIS_IN*
-2.  *FILL_THIS_IN*
+From the refined research questions designed in Task 1.3, I have selected the following questions to further explore,
+1.  Which variable _exhibits the strongest relationship_ with diagnosis?  
+2.  _Is the standard error for these variables consistent across all ranges of measurement?_ 
 
 <!----------------------------------------------------------------------------->
 
 Explain your decision for choosing the above two research questions.
 
 <!--------------------------- Start your work below --------------------------->
+#### Rationale for selection of research questions  
+
+**1.  Which variable _exhibits the strongest relationship_ with diagnosis?**  
+I chose this question to analyse further because I feel statistical analysis would better justify if any variable reliably indicates diagnosis. Quantifying the correlation between each variable and diagnosis would better characterize the strength of relationship to diagnosis than the fold-difference of *the means calculated in Task 1.2. 
+
+**2.  _Is the standard error for these variables consistent across all ranges of measurement?_**  
+I chose this question to analyse further because the analysis completed in Task 1.2 revealed that higher values of `concave_points_mean` correlated with higher values of `concave_points_se`. This relationship suggests that samples with higher `concave_points_mean` values also have greater variability in measurement or that samples with lower `concave_points_mean` values are more precisely measured. This may be a factor in answering Research Question **#1**. Visualizing the relationship between each variable and the associated standard error may contribute to selection of an indicator of diagnosis.  
 
 <!----------------------------------------------------------------------------->
 
@@ -429,6 +541,49 @@ Now, try to choose a version of your data that you think will be appropriate to 
 (If it makes more sense, then you can make/pick two versions of your data, one for each research question.) 
 
 <!--------------------------- Start your work below --------------------------->
+#### Tidying the `cancer_sample` data set for analysis
+
+**1.  Which variable _exhibits the strongest relationship_ with diagnosis?**  
+In Task 1.2, I did not tidy the `cancer_sample` data set before analysis. This required generating 10 unique graphs, plotting each variable grouped by diagnosis and using `ggarrange` to display all plots at once with a common legend. 
+
+In this exercise, I tidied the data to meet the needs of this specific analysis. This entails selecting only the `mean` variables, renaming columns to ease use of the `pivot_longer()` function, then assigning the variable attributes to their own column. This is a _'tidier'_ version of the data set because I can `group_by` both `attribute` and `diagnosis`, allowing use of `facet_wrap()`to render plots of each attribute at once. 
+
+```{r}
+task2.3_q1 <- cancer_sample %>%
+  select(ID:fractal_dimension_mean) %>%
+  rename(concave.points_mean = concave_points_mean,
+         fractal.dimension_mean = fractal_dimension_mean) %>%
+  pivot_longer(cols = !c(ID, diagnosis),
+               names_to = c("attribute", ".value"),
+               names_sep = "_") %>%
+  group_by(attribute, diagnosis)
+
+print(task2.3_q1)
+```
+
+**2.  _Is the standard error for these variables consistent across all ranges of measurement?_**  
+In Task 1.2, the `cancer_sample` data set was already in a _tidy_ state to perform my intended analysis.
+
+To answer the refined version of my research question, the `cancer_sample` data set required further tidying. In order to simultaneously generate plots of each `mean` variable against their corresponding `se` variable, I need to create a column that can group the data appropriately. 
+
+This entails selecting only the `mean` and `se` variables, renaming columns to ease use of the `pivot_longer()` function, then assigning the variable attributes to their own column. This is a _'tidier'_ version of the data set because I can `group_by` `attribute`, allowing use of `facet_wrap()`to render plots of each attribute at once. 
+
+```{r}
+task2.3_q2 <- cancer_sample %>%
+  select(radius_mean:fractal_dimension_se) %>%
+  rename(concave.points_mean = concave_points_mean,
+         fractal.dimension_mean = fractal_dimension_mean,
+         concave.points_se = concave_points_se,
+         fractal.dimension_se = fractal_dimension_se) %>%
+  pivot_longer(cols = everything(),
+               names_to = c("attribute", ".value"),
+               names_sep = "_") %>%
+  group_by(attribute)
+
+print(task2.3_q2)
+```
+
+<!----------------------------------------------------------------------------->
 
 # Task 3: Modelling
 
@@ -438,9 +593,9 @@ Pick a research question from 1.2, and pick a variable of interest (we'll call i
 
 <!-------------------------- Start your work below ---------------------------->
 
-**Research Question**: FILL_THIS_IN
+**Research Question**: Which variable is the strongest indicator of diagnosis? (Refined: Which variable _exhibits the strongest relationship_ with diagnosis?)
 
-**Variable of interest**: FILL_THIS_IN
+**Variable of interest**: `concave_points_mean`
 
 <!----------------------------------------------------------------------------->
 
@@ -456,6 +611,15 @@ Fit a model or run a hypothesis test that provides insight on this variable with
 
 <!-------------------------- Start your work below ---------------------------->
 
+### Testing if `concave_points_mean` is significantly different across diagnoses
+
+```{r}
+task3.1_cpoints_ttest <- t.test(concave_points_mean ~ diagnosis, data = cancer_sample)
+print(task3.1_cpoints_ttest)
+```
+### Conclusion  
+Based on the Welch Two-Sample t-test, the means of `concave_points_mean` is significantly different between benign and malignant samples. 
+
 <!----------------------------------------------------------------------------->
 
 ## 3.2 (3 points)
@@ -467,6 +631,20 @@ Produce something relevant from your fitted model: either predictions on Y, or a
 -   Obtain your results using the `broom` package if possible. If your model is not compatible with the broom function you're needing, then you can obtain your results by some other means, but first indicate which broom function is not compatible.
 
 <!-------------------------- Start your work below ---------------------------->
+
+### Summarizing the difference of means in `concave_points_mean`  
+
+I used the `tidy()` function from the `broom` package to output the calculated **means** of each group, the **t-statistic** and **p-value** outputted from the t-test performed. 
+
+```{r}
+task3.2_ttest_stats <- task3.1_cpoints_ttest %>% tidy() %>%
+  select("B avg" = estimate1,
+         "M avg" = estimate2,
+         "t" = statistic,
+         "p-value" = p.value)
+
+print(task3.2_ttest_stats)
+```
 
 <!----------------------------------------------------------------------------->
 
@@ -483,6 +661,13 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 
 <!-------------------------- Start your work below ---------------------------->
 
+### Saving `task1.2_q1_stats` as a `.csv` to "output" within this repository
+
+```{r}
+write_csv(task1.2_q1_stats, 
+          file = here("output", "task1.2_q1_stats.csv"))
+```
+
 <!----------------------------------------------------------------------------->
 
 ## 4.2 (3 points)
@@ -492,6 +677,17 @@ Write your model object from Task 3 to an R binary file (an RDS), and load it ag
 -   The same robustness and reproducibility criteria as in 4.1 apply here.
 
 <!-------------------------- Start your work below ---------------------------->
+
+### Saving `task3.1_cpoints_ttest` as an `.rds` to "output" within this repository
+
+```{r}
+saveRDS(task3.1_cpoints_ttest, 
+        file = here("output", "task3.1_cpoints_ttest.rds"))
+```
+
+```{r}
+readRDS(here("output", "task3.1_cpoints_ttest.rds"))
+```
 
 <!----------------------------------------------------------------------------->
 
